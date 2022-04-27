@@ -8,6 +8,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public class App extends Application {
@@ -15,6 +16,7 @@ public class App extends Application {
     private final int HEIGHT = 720;
     private final int WIDTH = 1080;
     private final int K_X = 40;
+    private final int N_MAX = 500;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -35,19 +37,6 @@ public class App extends Application {
         );
 
         Operation operation = x -> getResultFunction(x[0], 10) * 40 ;
-
-        /*for(int i = -WIDTH/2; i < WIDTH/2 - 1; i++) {
-            group.getChildren().add(
-                    new Line(
-                        i + WIDTH/2,
-                        -operation.execute(i) + HEIGHT/2,
-                        i+1 +WIDTH/2,
-                        -operation.execute(i+1)+ HEIGHT/2
-                    )
-            );
-        }*/
-
-        // Вывод меток
 
         double[] labels = new double[(int) (1080/Math.PI)/(K_X)];
         double num = Math.PI * K_X / 2;
@@ -126,7 +115,7 @@ public class App extends Application {
         line2.setStrokeWidth(2);
         line3.setStrokeWidth(2);
 
-        Color colorInitialGraph = Color.rgb(0, 0, 0);
+        Color colorInitialGraph = Color.rgb(0, 255, 0);
 
         line1.setStroke(colorInitialGraph);
         line2.setStroke(colorInitialGraph);
@@ -136,19 +125,35 @@ public class App extends Application {
         group.getChildren().addAll(line1, line2, line3);
 
 
-        // new graph
 
-        for (int i = -WIDTH/2; i < WIDTH/2 - 1; i++){
-            group.getChildren().addAll(
-                    new Line(
-                            i + WIDTH/2 - myPI/2+10,
-                            -getResultFunction(i/K_X, 1000) * K_X + HEIGHT/2,
-                            i + 1 + WIDTH/2 - myPI/2+10,
-                            -getResultFunction((i+1)/K_X, 1000) * K_X + HEIGHT/2
-                    )
-            );
+        double[] generateArr = new double[WIDTH];
+        double[] xArray = new double[WIDTH];
+        double x = -myPI;
+        int j =0;
+        while (j < WIDTH){
+            generateArr[j] = getResultFunction(x/K_X, N_MAX)*K_X;
+            xArray[j] = x;
+            j++;
+            x += 1;
         }
 
+        System.out.println(Arrays.toString(generateArr));
+        System.out.println(Arrays.toString(xArray));
+
+        // new graph
+
+        for (int i = 0; i < xArray.length-1; i++){
+            Line newLine = new Line(
+                    xArray[i] + myPI/4,
+                    -generateArr[i]   + HEIGHT/2,
+                    xArray[i+1] + myPI/4,
+                    -generateArr[i+1]   + HEIGHT/2
+            );
+            Color newGraphColor = Color.rgb(255, 0, 0);
+            newLine.setStroke(newGraphColor);
+            newLine.setStrokeWidth(2);
+            group.getChildren().addAll(newLine);
+        }
 
 
         primaryStage.setTitle("График матанализ");
@@ -160,7 +165,8 @@ public class App extends Application {
     }
 
     public double getResultFunction(double x, int nMax){
-        double a0 = (-3*Math.PI+3)/2;
+        double pi = Math.PI;
+        double a0 = (-3*pi+3)/2;
         double res = a0 / 2;
         for (int n = 1; n <= nMax; n++){
             res += calculateAn(n) * Math.cos(n*x) + calculateBn(n) * Math.sin(n*x);
@@ -169,13 +175,14 @@ public class App extends Application {
     }
 
     public double calculateAn(int n){
-        double res = ( ((-Math.PI*Math.sin(Math.PI*n))/(n)) + (  ((-(Math.pow(Math.PI, 2)-5*Math.PI)*Math.sin((Math.PI*n)/2))/(Math.PI*n))   + ((6*Math.cos((Math.PI*n)/2))/(Math.PI*(n*n))) - (6/(Math.PI*n*n)) ) + ( ((-1*(Math.PI*Math.PI+Math.PI)*Math.sin((Math.PI*n)/2))/(Math.PI*n)) + ((6*Math.cos((Math.PI*n)/2))/(Math.PI*n*n)) - ((6*Math.pow(-1, n))/(Math.PI*n*n)) )  ) / (Math.PI);
+        double pi = Math.PI;
+        double res = ( ((-pi*Math.sin(pi*n))/(n)) + (  ((-(Math.pow(pi, 2)-5*pi)*Math.sin((pi*n)/2))/(pi*n))   + ((6*Math.cos((pi*n)/2))/(pi*(n*n))) - (6/(pi*n*n)) ) + ( ((-1*(pi*pi+pi)*Math.sin((pi*n)/2))/(pi*n)) + ((6*Math.cos((pi*n)/2))/(pi*n*n)) - ((6*Math.pow(-1, n))/(pi*n*n)) )  ) / (pi);
         return res;
     }
 
     public double calculateBn(int n){
         double pi = Math.PI;
-        double res = ( ( (pi)/(n) - (Math.pow(-1, n)*pi)/(n) ) + ( ((6*Math.sin((pi*n)/2))/(pi*n*n)) + (((pi*pi-5*pi)*Math.cos((pi*n)/2))/(pi*n)) + ((2*pi-pi*pi)/(pi*n)) ) + (((6*Math.sin((pi*n)/2))/(pi*n*n)) + (((pi*pi+pi)*Math.cos((pi*n)/2))/(pi*n)) + ((2*Math.pow(-1, n)*pi - pi*pi * Math.pow(-1, n))/(pi*n))) ) / (Math.PI);
+        double res = ( ( (pi)/(n) - (Math.pow(-1, n)*pi)/(n) ) + ( ((6*Math.sin((pi*n)/2))/(pi*n*n)) + (((pi*pi-5*pi)*Math.cos((pi*n)/2))/(pi*n)) + ((2*pi-pi*pi)/(pi*n)) ) + (((6*Math.sin((pi*n)/2))/(pi*n*n)) + (((pi*pi+pi)*Math.cos((pi*n)/2))/(pi*n)) + ((2*Math.pow(-1, n)*pi - pi*pi * Math.pow(-1, n))/(pi*n))) ) / (pi);
         return res;
     }
 
